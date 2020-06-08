@@ -4,6 +4,7 @@ import Directory from "./DirectoryComponent";
 import About from "./AboutComponent";
 import Contact from "./ContactComponent";
 import Reservation from "./ReservationComponent";
+import Favourites from './FavouritesComponent';
 import {
   View,
   Platform,
@@ -84,6 +85,32 @@ const ReservationNavigator = createStackNavigator(
     }),
   }
 );
+
+const FavouriteNavigator = createStackNavigator(
+  {
+    Favourites: { screen: Favourites },
+  },
+  {
+    navigationOptions: ({ navigation }) => ({
+      headerStyle: {
+        backgroundColor: "#5637DD",
+      },
+      headerTintColor: "#fff",
+      headerTitleStyle: {
+        color: "#fff",
+      },
+      headerLeft: (
+        <Icon
+          name="heart"
+          type="font-awesome"
+          iconStyle={styles.stackIcon}
+          onPress={() => navigation.toggleDrawer()}
+        />
+      ),
+    }),
+  }
+);
+
 const AboutNavigator = createStackNavigator(
   {
     About: { screen: About },
@@ -211,6 +238,15 @@ const MainNavigator = createDrawerNavigator(
         drawerLabel: 'Reserve Campsite',
         drawerIcon: ({ tintColor }) => (
           <Icon name="tree" type="font-awesome" size={24} color={tintColor} />
+        ),
+      },
+    },
+    Favourites: {
+      screen: FavouriteNavigator,
+      navigationOptions: {
+        drawerLabel: 'My Favourites',
+        drawerIcon: ({ tintColor }) => (
+          <Icon name="heart" type="font-awesome" size={24} color={tintColor} />
         ),
       },
     },
