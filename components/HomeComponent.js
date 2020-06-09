@@ -39,21 +39,19 @@ class Home extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      scaleValue: new Animated.Value(0),
+      scaleValue: new Animated.Value(0.01),
     };
   }
 
   animate() {
     Animated.timing(this.state.scaleValue, {
       toValue: 1,
-      duration: 2000,
-    }
-    ).start();
+      duration: 1500,
+    }).start();
     console.log("Animation started");
   }
 
   componentDidMount() {
-  
     this.animate();
   }
   static navigationOptions = {
