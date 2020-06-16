@@ -34,7 +34,32 @@ class Reservation extends Component {
       showModal: false,
     });
   }
-
+  handleReservation(){
+    
+      Alert.alert(
+        "Begin Search?",
+        `Number of Campers: ${this.state.campers}
+        \n Hike-In?: ${this.state.hikeIn ? "Yes" : "No"}
+        \n Date: ${this.state.date}`,
+        [
+          {
+            text: "Cancel",
+            onPress: () => {
+              this.reserForm();
+            },
+            style: "cancel",
+          },
+          {
+            text: "Ok",
+            onPress: () => {
+              this.reserForm();
+            },
+          },
+        ],
+        { cancelable: false }
+      );
+    }
+  
   render() {
     return (
       <Animatable.View animation="zoomIn" duration={2000} delay={1000}>
@@ -94,30 +119,7 @@ class Reservation extends Component {
             title="Search"
             color="#5637DD"
             accessibilityLabel="Tap me to search for available campsites to reserve"
-            onPress={() => {
-              Alert.alert(
-                "Begin Search?",
-                `Number of Campers: ${this.state.campers}
-                \n Hike-In?: ${this.state.hikeIn ? "Yes" : "No"}
-                \n Date: ${this.state.date}`,
-                [
-                  {
-                    text: "Cancel",
-                    onPress: () => {
-                      this.reserForm();
-                    },
-                    style: "cancel",
-                  },
-                  {
-                    text: "Ok",
-                    onPress: () => {
-                      this.reserForm();
-                    },
-                  },
-                ],
-                { cancelable: false }
-              );
-            }}
+            onPress={()=>this.handleReservation()}
           />
         </View>
       </Animatable.View>
