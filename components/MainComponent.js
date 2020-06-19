@@ -4,8 +4,8 @@ import Directory from "./DirectoryComponent";
 import About from "./AboutComponent";
 import Contact from "./ContactComponent";
 import Reservation from "./ReservationComponent";
-import Favourites from './FavouritesComponent';
-import Login from './LoginComponent';
+import Favourites from "./FavouritesComponent";
+import Login from "./LoginComponent";
 import {
   View,
   Platform,
@@ -13,6 +13,8 @@ import {
   Text,
   ScrollView,
   Image,
+  Alert,
+  ToastAndroid,
 } from "react-native";
 import CampsiteInfo from "./CampsiteInfoComponent";
 import {
@@ -21,6 +23,7 @@ import {
   DrawerItems,
 } from "react-navigation";
 import { Icon } from "react-native-elements";
+import NetInfo from "@react-native-community/netinfo";
 import SafeAreaView from "react-native-safe-area-view";
 import { connect } from "react-redux";
 import {
@@ -245,7 +248,12 @@ const MainNavigator = createDrawerNavigator(
       screen: LoginNavigator,
       navigationOptions: {
         drawerIcon: ({ tintColor }) => (
-          <Icon name="sign-in" type="font-awesome" size={24} color={tintColor} />
+          <Icon
+            name="sign-in"
+            type="font-awesome"
+            size={24}
+            color={tintColor}
+          />
         ),
       },
     },
@@ -268,7 +276,7 @@ const MainNavigator = createDrawerNavigator(
     Reservation: {
       screen: ReservationNavigator,
       navigationOptions: {
-        drawerLabel: 'Reserve Campsite',
+        drawerLabel: "Reserve Campsite",
         drawerIcon: ({ tintColor }) => (
           <Icon name="tree" type="font-awesome" size={24} color={tintColor} />
         ),
@@ -277,7 +285,7 @@ const MainNavigator = createDrawerNavigator(
     Favourites: {
       screen: FavouriteNavigator,
       navigationOptions: {
-        drawerLabel: 'My Favourites',
+        drawerLabel: "My Favourites",
         drawerIcon: ({ tintColor }) => (
           <Icon name="heart" type="font-awesome" size={24} color={tintColor} />
         ),
@@ -312,7 +320,8 @@ const MainNavigator = createDrawerNavigator(
       },
     },
   },
-  { initialRouteName: 'Home',
+  {
+    initialRouteName: "Home",
     drawerBackgroundColor: "#CEC8FF",
     contentComponent: CustomDrawerContentComponent,
   }
@@ -324,7 +333,43 @@ class Main extends Component {
     this.props.fetchComments();
     this.props.fetchPromotions();
     this.props.fetchPartners();
+
+    NetInfo.fetch().then((connectionInfo) => {
+      Platform.OS === "ios"
+        ? Alert.alert("Initial Network Connectivity Type:", connectionInfo.type)
+        : ToastAndroid.show(
+            "Initial Network Connectivity Type: " + connectionInfo.type,
+            ToastAndroid.LONG
+          );
+    });
+
+    this.unsubscribeNetInfo = NetInfo.addEventListener((connectionInfo) => {
+      this.handleConnectivityChange(connectionInfo);
+    });
   }
+  componentWillUnmount() {
+    this.unsubscribeNetInfo();
+  }
+  handleConnectivityChange = (connectionInfo) => {
+    let connectionMsg = "You are now connected to an active network.";
+    switch (connectionInfo.type) {
+      case "none":
+        connectionMsg = "No network connection is active.";
+        break;
+      case "unknown":
+        connectionMsg = "The network connection state is now unknown.";
+        break;
+      case "cellular":
+        connectionMsg = "You are now connected to a cellular network.";
+        break;
+      case "wifi":
+        connectionMsg = "You are now connected to a WiFi network.";
+        break;
+    }
+    Platform.OS === "ios"
+      ? Alert.alert("Connection change:", connectionMsg)
+      : ToastAndroid.show(connectionMsg, ToastAndroid.LONG);
+  };
 
   render() {
     return (
