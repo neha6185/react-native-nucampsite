@@ -6,6 +6,8 @@ import * as ImagePicker from "expo-image-picker";
 import * as Permissions from "expo-permissions";
 import { createBottomTabNavigator } from "react-navigation";
 import { baseUrl } from "../shared/baseUrl";
+import * as ImageManipulator from "expo-image-manipulator";
+import * as MediaLibrary from "expo-media-library";
 
 class LoginTab extends Component {
   constructor(props) {
@@ -137,20 +139,55 @@ class RegisterTab extends Component {
       />
     ),
   };
-  getImageFromCamera = async ()=>{
-      const cameraPermission = await Permissions.askAsync(Permissions.CAMERA);
-      const cameraRollPermission = await Permissions.askAsync(Permissions.CAMERA_ROLL);
-      if(cameraPermission.status === 'granted' && cameraRollPermission.status ==='granted'){
-          const capturedImage = await ImagePicker.launchCameraAsync({
-              allowsEditing:true,
-              aspect:[1,1]
-            });
-            if(!capturedImage.cancelled){
-                console.log(capturedImage);
-                this.setState({imageUrl:capturedImage.uri});
-            }
+  getImageFromGallery = async () => {
+    const cameraRollPermissions = await Permissions.askAsync(
+      Permissions.CAMERA_ROLL
+    );
+    if (cameraRollPermissions.status === "granted") {
+      const capturedImage = await ImagePicker.launchImageLibraryAsync({
+        allowsEditing: true,
+        aspect: [1, 1],
+      });
+      if (!capturedImage.cancelled) {
+        console.log(capturedImage);
+        this.processImage(capturedImage.uri);
       }
-  }
+    }
+  };
+  getImageFromCamera = async () => {
+    const cameraPermission = await Permissions.askAsync(Permissions.CAMERA);
+    const cameraRollPermission = await Permissions.askAsync(
+      Permissions.CAMERA_ROLL
+    );
+    if (
+      cameraPermission.status === "granted" &&
+      cameraRollPermission.status === "granted"
+    ) {
+      const capturedImage = await ImagePicker.launchCameraAsync({
+        allowsEditing: true,
+        aspect: [1, 1],
+      });
+
+      if (!capturedImage.cancelled) {
+        // MediaLibrary.saveToLibraryAsync(capturedImage);
+        console.log(capturedImage);
+        // this.setState({imageUrl:capturedImage.uri});
+        this.processImage(capturedImage.uri);
+      }
+    }
+  };
+  processImage = async (imgUri) => {
+    const processedImage = await ImageManipulator.manipulateAsync(
+      imgUri,
+      [{ resize: { width: 400 } }],
+      { format: ImageManipulator.SaveFormat.PNG }
+    );
+    if (!processedImage.cancelled) {
+      console.log(processedImage);
+      this.setState({ imageUrl: processedImage.uri });
+    }
+  };
+
   handleRegister() {
     console.log(JSON.stringify(this.state));
     if (this.state.remember) {
@@ -171,17 +208,15 @@ class RegisterTab extends Component {
     return (
       <ScrollView>
         <View style={styles.container}>
-            <View style={styles.imageContainer}>
-                <Image 
-                source={{uri:this.state.imageUrl}}
-                loadingIndicatorSource={require('./images/logo.png')}
-                style={styles.image}
-                />
-                <Button 
-                title='Camera'
-                onPress={this.getImageFromCamera}
-                />
-            </View>
+          <View style={styles.imageContainer}>
+            <Image
+              source={{ uri: this.state.imageUrl }}
+              loadingIndicatorSource={require("./images/logo.png")}
+              style={styles.image}
+            />
+            <Button title="Camera" onPress={this.getImageFromCamera} />
+            <Button title="Gallery" onPress={this.getImageFromGallery} />
+          </View>
           <Input
             placeholder="UserName"
             leftIcon={{ type: "font-awesome", name: "user-o" }}
@@ -244,7 +279,6 @@ class RegisterTab extends Component {
               buttonStyle={{ backgroundColor: "#5637DD" }}
             />
           </View>
-          
         </View>
       </ScrollView>
     );
@@ -283,20 +317,20 @@ const styles = StyleSheet.create({
   },
   formButton: {
     margin: 20,
-    marginRight:40,
-    marginLeft:40
+    marginRight: 40,
+    marginLeft: 40,
   },
-  imageContainer:{
-      flex:1,
-      flexDirection:'row',
-      alignItems:'center',
-      justifyContent:'space-evenly',
-      margin:10
+  imageContainer: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-evenly",
+    margin: 10,
   },
-  image:{
-      width:60,
-      height:60
-  }
+  image: {
+    width: 60,
+    height: 60,
+  },
 });
 
 export default Login;
