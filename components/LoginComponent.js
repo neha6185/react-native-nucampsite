@@ -169,9 +169,8 @@ class RegisterTab extends Component {
       });
 
       if (!capturedImage.cancelled) {
-        // MediaLibrary.saveToLibraryAsync(capturedImage);
         console.log(capturedImage);
-        // this.setState({imageUrl:capturedImage.uri});
+        const asset = await MediaLibrary.saveToLibraryAsync(capturedImage.uri);
         this.processImage(capturedImage.uri);
       }
     }
@@ -184,6 +183,7 @@ class RegisterTab extends Component {
     );
     if (!processedImage.cancelled) {
       console.log(processedImage);
+      const asset = await MediaLibrary.saveToLibraryAsync(processedImage.uri);
       this.setState({ imageUrl: processedImage.uri });
     }
   };
